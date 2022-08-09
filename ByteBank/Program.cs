@@ -12,32 +12,17 @@ namespace ByteBank
         {
             try
             {
-                ContaCorrente conta = new ContaCorrente(0, 0);
-            }
-            catch(ArgumentException ex)
-            {
-                Console.WriteLine("Ocorreu uma exceção do tipo ArgumentException");
-                Console.WriteLine(ex.Message);
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
+                ContaCorrente conta1 = new ContaCorrente(454, 55555);
+                ContaCorrente conta2 = new ContaCorrente(455, 66666);
 
-            //try
-            //{
-            //    Metodo();
-            //}
-            //catch (DivideByZeroException)
-            //{
-            //    Console.WriteLine("Não é possível realizar divisão por zero (0).");
-            //}
-            //catch (Exception erro)
-            //{
-            //    Console.WriteLine(erro.Message);
-            //    Console.WriteLine(erro.StackTrace);
-            //    Console.WriteLine("Ocorreu um Erro Interno!");
-            //}
+                //conta1.Transferir(10000, conta2);
+                conta1.Sacar(1000);
+            }
+            catch (OperacaoFinanceiraException ex)
+            {
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
+            }
            
             Console.ReadLine();
         }

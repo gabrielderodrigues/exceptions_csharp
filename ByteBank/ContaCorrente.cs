@@ -8,7 +8,13 @@ namespace ByteBank
     {
         public Cliente Titular { get; set; }
 
+        private static int TaxaOperacao;
+
         public static int TotalDeContasCriadas { get; private set; }
+
+        public int ContadorSaquesNaoPermitidos { get; private set; }
+
+        public int ContadorTransferenciasNaoPermitidas { get; private set; }
 
         public int Agencia { get; }
 
@@ -42,24 +48,38 @@ namespace ByteBank
 
             if (numero <= 0)
             {
-                throw new ArgumentException("O argumento número deve ser maior que 0.", nameof(agencia));
+                throw new ArgumentException("O argumento número deve ser maior que 0.", nameof(numero));
             }
 
             Agencia = agencia;
             Numero = numero;
 
             TotalDeContasCriadas++;
+            TaxaOperacao = 30 / TotalDeContasCriadas;
         }
 
-        public bool Sacar(double valor)
+        public void Sacar(double valor)
         {
-            if (_saldo < valor)
+            try
             {
-                return false;
-            }
+                if (valor < 0)
+                {
+                    throw new ArgumentException("Valor inválido para o saque.", nameof(valor));
+                }
 
-            _saldo -= valor;
-            return true;
+                if (_saldo < valor)
+                {
+                    ContadorSaquesNaoPermitidos++;
+                    throw new SaldoInsuficienteException(Saldo, valor);
+                }
+
+                _saldo -= valor;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
         public void Depositar(double valor)
@@ -68,16 +88,24 @@ namespace ByteBank
         }
 
 
-        public bool Transferir(double valor, ContaCorrente contaDestino)
+        public void Transferir(double valor, ContaCorrente contaDestino)
         {
-            if (_saldo < valor)
+            if (valor < 0)
             {
-                return false;
+                throw new ArgumentException("Valor inválido para o saque.", nameof(valor));
             }
 
-            _saldo -= valor;
+            try
+            {
+                Sacar(valor);
+            }
+            catch (SaldoInsuficienteException ex)
+            { 
+                ContadorTransferenciasNaoPermitidas++;
+                throw new OperacaoFinanceiraException("Operação não realizada.", ex);
+            } 
+
             contaDestino.Depositar(valor);
-            return true;
         }
     }
 }
